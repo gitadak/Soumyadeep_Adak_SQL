@@ -1,0 +1,270 @@
+1)
+CREATE TABLE CLIENT_MASTER_TS
+(
+	CLIENT_NO VARCHAR2(6) PRIMARY KEY,
+	NAME VARCHAR2(20) NOT NULL,
+	CITY VARCHAR2(15),
+	PINCODE NUMBER(8),
+	STATE VARCHAR2(15),
+	BAL_DUE NUMBER(10,2),
+	CHECK (CLIENT_NO LIKE 'C%')
+);
+
+SQL> DESC CLIENT_MASTER_TS;
+ Name                                                                                Null?    Type
+ ----------------------------------------------------------------------------------- -------- --------------------------------------------------------
+ CLIENT_NO                                                                           NOT NULL VARCHAR2(6)
+ NAME                                                                                NOT NULL VARCHAR2(20)
+ CITY                                                                                         VARCHAR2(15)
+ PINCODE                                                                                      NUMBER(8)
+ STATE                                                                                        VARCHAR2(15)
+ BAL_DUE                                                                                      NUMBER(10,2)
+
+
+CREATE TABLE PRODUCT_MASTER_TS
+(
+	PRODUCT_NO VARCHAR2(6) PRIMARY KEY,
+	DESCRIPTION VARCHAR2(15) NOT NULL,
+	PROFIT_PERCENT NUMBER(4,2) NOT NULL,
+	UNIT_MEASURE VARCHAR2(10) NOT NULL,
+	QTY_ON_HAND NUMBER(8) NOT NULL,
+	REORDER_LVL NUMBER(8) NOT NULL,
+	SELL_PRICE NUMBER(8,2) NOT NULL,
+	COST_PRICE NUMBER(8,2) NOT NULL,
+	CHECK (SELL_PRICE<>0 AND COST_PRICE<>0)	
+);
+
+ALTER TABLE PRODUCT_MASTER_TS ADD CONSTRAINT CHK_PRODUCT_NO_TS CHECK(PRODUCT_NO LIKE 'P%');
+
+SQL> DESC PRODUCT_MASTER_TS;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRODUCT_NO                                NOT NULL VARCHAR2(6)
+ DESCRIPTION                               NOT NULL VARCHAR2(15)
+ PROFIT_PERCENT                            NOT NULL NUMBER(4,2)
+ UNIT_MEASURE                              NOT NULL VARCHAR2(10)
+ QTY_ON_HAND                               NOT NULL NUMBER(8)
+ REORDER_LVL                               NOT NULL NUMBER(8)
+ SELL_PRICE                                NOT NULL NUMBER(8,2)
+ COST_PRICE                                NOT NULL NUMBER(8,2)
+
+
+CREATE TABLE SALESMAN_MASTER_TS
+(
+	SALESMAN_NO VARCHAR2(6) PRIMARY KEY,
+	SALESMAN_NAME VARCHAR2(20) NOT NULL,
+	ADDRESS1 VARCHAR2(10) NOT NULL,
+	ADDRESS2 VARCHAR2(10),
+	CITY VARCHAR2(20),
+	PINCODE NUMBER(7),
+	STATE VARCHAR2(20),
+	SAL_AMT NUMBER(8,2) NOT NULL,
+	TGT_TO_GET NUMBER(6,2) NOT NULL,
+	YTD_SALES NUMBER(6,2) NOT NULL,
+	REMARKS VARCHAR2(20),
+	CHECK (SALESMAN_NO LIKE 'S%' AND SAL_AMT<>0 AND TGT_TO_GET<>0)
+);
+
+SQL> DESC SALESMAN_MASTER_TS;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SALESMAN_NO                               NOT NULL VARCHAR2(6)
+ SALESMAN_NAME                             NOT NULL VARCHAR2(20)
+ ADDRESS1                                  NOT NULL VARCHAR2(10)
+ ADDRESS2                                           VARCHAR2(10)
+ CITY                                               VARCHAR2(20)
+ PINCODE                                            NUMBER(7)
+ STATE                                              VARCHAR2(20)
+ SAL_AMT                                   NOT NULL NUMBER(8,2)
+ TGT_TO_GET                                NOT NULL NUMBER(6,2)
+ YTD_SALES                                 NOT NULL NUMBER(6,2)
+ REMARKS                                            VARCHAR2(20)
+
+CREATE TABLE SALES_ORDER_TS
+(
+	ORDER_NO VARCHAR2(6) PRIMARY KEY,
+	ORDER_DATE DATE,
+	CLIENT_NO VARCHAR2(6),
+	DELY_ADDRESS VARCHAR2(25),
+	SALESMAN_NO VARCHAR2(6),
+	DELY_TYPE CHAR(1) DEFAULT 'F',
+	BILLED_YN CHAR(1),
+	DELY_DATE DATE,
+	ORDER_STATUS VARCHAR2(10),
+	CONSTRAINT SALES_ORDER_TS_CLIENT_NO FOREIGN KEY(CLIENT_NO) REFERENCES CLIENT_MASTER_TS(CLIENT_NO),
+	CONSTRAINT SALES_ORDER_TS_SALESMAN_NO FOREIGN KEY(SALESMAN_NO) REFERENCES SALESMAN_MASTER_TS(SALESMAN_NO),
+	CHECK (ORDER_NO LIKE 'O%'AND DELY_TYPE IN ('P','F') AND DELY_DATE>=ORDER_DATE AND ORDER_STATUS IN ('in process','fulfilled','backorder','cancelled'))
+);
+
+SQL> DESC SALES_ORDER_TS
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ORDER_NO                                  NOT NULL VARCHAR2(6)
+ ORDER_DATE                                         DATE
+ CLIENT_NO                                          VARCHAR2(6)
+ DELY_ADDRESS                                       VARCHAR2(25)
+ SALESMAN_NO                                        VARCHAR2(6)
+ DELY_TYPE                                          CHAR(1)
+ BILLED_YN                                          CHAR(1)
+ DELY_DATE                                          DATE
+ ORDER_STATUS                                       VARCHAR2(10)
+
+
+CREATE TABLE SALES_ORDER_DETAILS_TS
+(
+	ORDER_NO VARCHAR2(6),
+	PRODUCT_NO VARCHAR2(6),
+	QTY_ORDERED NUMBER(8),
+	QTY_DISP NUMBER(8),
+	PRODUCT_RATE NUMBER(10,2),
+	PRIMARY KEY(ORDER_NO,PRODUCT_NO),
+	CONSTRAINT FK_ORDER_NO FOREIGN KEY(ORDER_NO) REFERENCES SALES_ORDER_TS(ORDER_NO),
+	CONSTRAINT FK_PRODUCT_NO FOREIGN KEY(PRODUCT_NO) REFERENCES PRODUCT_MASTER_TS(PRODUCT_NO)
+);
+
+SQL> DESC SALES_ORDER_DETAILS_TS
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ORDER_NO                                  NOT NULL VARCHAR2(6)
+ PRODUCT_NO                                NOT NULL VARCHAR2(6)
+ QTY_ORDERED                                        NUMBER(8)
+ QTY_DISP                                           NUMBER(8)
+ PRODUCT_RATE                                       NUMBER(10,2)
+
+
+2)
+INSERT INTO CLIENT_MASTER_TS VALUES('C00001','Ivan Bayross','Mumbai',400054,'Maharashtra',15000);
+INSERT INTO CLIENT_MASTER_TS VALUES('C00002','Mamta Mazumdar','Madras',780001,'Tamil Nadu',0);
+INSERT INTO CLIENT_MASTER_TS VALUES('C00003','Chhaya Bankar','Mumbai',400057,'Maharashtra',5000);
+INSERT INTO CLIENT_MASTER_TS VALUES('C00004','Ashwini Joshi','Bangalore',560001,'Karnataka',0);
+INSERT INTO CLIENT_MASTER_TS VALUES('C00005','Hansel Colaco','Mumbai',400060,'Maharashtra',2000);
+INSERT INTO CLIENT_MASTER_TS VALUES('C00006','Deepak Sharma','Mangalore',560050,'Karnataka',0);
+
+SQL> select * from client_master_ts;
+
+CLIENT NAME                 CITY               PINCODE STATE              BAL_DUE
+------ -------------------- --------------- ---------- --------------- ----------
+C00001 Ivan Bayross         Mumbai              400054 Maharashtra          15000
+C00002 Mamta Mazumdar       Madras              780001 Tamil Nadu               0
+C00003 Chhaya Bankar        Mumbai              400057 Maharashtra           5000
+C00004 Ashwini Joshi        Bangalore           560001 Karnataka                0
+C00005 Hansel Colaco        Mumbai              400060 Maharashtra           2000
+C00006 Deepak Sharma        Mangalore           560050 Karnataka                0
+
+6 rows selected.
+
+
+
+INSERT INTO PRODUCT_MASTER_TS VALUES('P00001','T-Shirts',5,'Piece',200,50,350,250);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P0345','Shirts',6,'Piece',150,50,500,350);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P06734','Cotton Jeans',5,'Piece',100,20,600,450);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P07865','Jeans',5,'Piece',100,20,750,500);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P07868','Trousers',2,'Piece',150,50,850,550);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P07885','PuM-Overs',2.5,'Piece',80,30,700,450);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P07965','Denim Shirts',4,'Piece',100,40,350,250);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P07975','Lyers Tops',5,'Piece',70,30,300,175);
+INSERT INTO PRODUCT_MASTER_TS VALUES('P08865','Skirts',5,'Piece',75,30,450,300);
+
+SQL> select * from product_master_ts;
+
+PRODUC DESCRIPTION     PROFIT_PERCENT UNIT_MEASU QTY_ON_HAND REORDER_LVL SELL_PRICE COST_PRICE
+------ --------------- -------------- ---------- ----------- ----------- ---------- ----------
+P00001 T-Shirts                     5 Piece              200          50        350        250
+P0345  Shirts                       6 Piece              150          50        500        350
+P06734 Cotton Jeans                 5 Piece              100          20        600        450
+P07865 Jeans                        5 Piece              100          20        750        500
+P07868 Trousers                     2 Piece              150          50        850        550
+P07885 PuM-Overs                  2.5 Piece               80          30        700        450
+P07965 Denim Shirts                 4 Piece              100          40        350        250
+P07975 Lyers Tops                   5 Piece               70          30        300        175
+P08865 Skirts                       5 Piece               75          30        450        300
+
+9 rows selected.
+
+
+INSERT INTO SALESMAN_MASTER_TS VALUES('S00001','Aman','A/14','Worli','Mumbai',400002,'Maharashtra',3000,100,50,'Good');
+INSERT INTO SALESMAN_MASTER_TS VALUES('S00002','Omkar','65','Nariman','Mumbai',400001,'Maharashtra',3000,200,100,'Good');
+INSERT INTO SALESMAN_MASTER_TS VALUES('S00003','Raj','P-7','Bandra','Mumbai',400032,'Maharashtra',3000,200,100,'Good');
+INSERT INTO SALESMAN_MASTER_TS VALUES('S00004','Ashis','A/5','Juhu','Mumbai',400044,'Maharashtra',3000,200,150,'Good');
+
+SQL> select * from salesman_master_ts;
+
+SALESM SALESMAN_NAME        ADDRESS1   ADDRESS2   CITY                    PINCODE STATE                   SAL_AMT TGT_TO_GET  YTD_SALES REMARKS
+------ -------------------- ---------- ---------- -------------------- ---------- -------------------- ---------- ---------- ---------- --------------------
+S00001 Aman                 A/14       Worli      Mumbai                   400002 Maharashtra                3000        100         50 Good
+S00002 Omkar                65         Nariman    Mumbai                   400001 Maharashtra                3000        200        100 Good
+S00003 Raj                  P-7        Bandra     Mumbai                   400032 Maharashtra                3000        200        100 Good
+S00004 Ashis                A/5        Juhu       Mumbai                   400044 Maharashtra                3000        200        150 Good
+
+
+INSERT INTO SALES_ORDER_TS VALUES('O19001','20-July-02','C00001',NULL,'S00001','F','N','12-June-04','in process');
+INSERT INTO SALES_ORDER_TS VALUES('O19002','27-June-02','C00002',NULL,'S00002','P','N','25-June-04','cancelled');
+INSERT INTO SALES_ORDER_TS VALUES('O46865','20-Feb-02','C00003',NULL,'S00003','F','Y','18-Feb-04','fulfilled');
+INSERT INTO SALES_ORDER_TS VALUES('O19003','07-Apr-02','C00001',NULL,'S00001','F','Y','03-Apr-04','fulfilled');
+INSERT INTO SALES_ORDER_TS VALUES('O46866','22-May-02','C00004',NULL,'S00002','P','N','20-May-04','cancelled');
+INSERT INTO SALES_ORDER_TS VALUES('O19008','26-July-02','C00005',NULL,'S00004','F','N','24-May-04','in process');
+
+SQL> select * from sales_order_ts;
+
+ORDER_ ORDER_DAT CLIENT DELY_ADDRESS              SALESM D B DELY_DATE ORDER_STAT
+------ --------- ------ ------------------------- ------ - - --------- ----------
+O19001 20-JUL-02 C00001                           S00001 F N 12-JUN-04 in process
+O19002 27-JUN-02 C00002                           S00002 P N 25-JUN-04 cancelled
+O46865 20-FEB-02 C00003                           S00003 F Y 18-FEB-04 fulfilled
+O19003 07-APR-02 C00001                           S00001 F Y 03-APR-04 fulfilled
+O46866 22-MAY-02 C00004                           S00002 P N 20-MAY-04 cancelled
+O19008 26-JUL-02 C00005                           S00004 F N 24-MAY-04 in process
+
+6 rows selected.
+
+
+
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19001','P00001',4,4,525);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19001','P07965',2,1,8400);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19001','P07885',2,1,5250);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19002','P00001',10,0,525);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46865','P07868',3,3,3150);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46865','P07885',3,1,5250);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46865','P00001',10,10,525);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46865','P0345',4,4,1050);
+
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19003','P03453',2,2,1050);   --- PRDOUCT_NO P03453 IS NOT PRESENT IN PRODUCT_MASTER_TS TABLE
+(ORA-02291: integrity constraint (CSE1.FK_PRODUCT_NO) violated - parent key not found)
+
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19003','P06734',1,1,12000);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46866','P07965',1,0,8400);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O46866','P07975',1,0,1050);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19008','P00001',10,5,525);
+INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19008','P07975',5,3,1050);
+
+SQL> SELECT * FROM SALES_ORDER_DETAILS_TS;
+
+ORDER_ PRODUC QTY_ORDERED   QTY_DISP PRODUCT_RATE
+------ ------ ----------- ---------- ------------
+O19001 P00001           4          4          525
+O19001 P07965           2          1         8400
+O19001 P07885           2          1         5250
+O19002 P00001          10          0          525
+O46865 P07868           3          3         3150
+O46865 P07885           3          1         5250
+O46865 P00001          10         10          525
+O46865 P0345            4          4         1050
+O19003 P06734           1          1        12000
+O46866 P07965           1          0         8400
+O46866 P07975           1          0         1050
+O19008 P00001          10          5          525
+O19008 P07975           5          3         1050
+
+13 rows selected.
+
+
+3)
+a)
+SELECT NAME FROM CLIENT_MASTER_TS WHERE NAME LIKE '%a';
+
+
+NAME
+--------------------
+Deepak Sharma
+
+b)
