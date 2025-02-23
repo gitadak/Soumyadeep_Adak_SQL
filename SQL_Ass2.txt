@@ -1,3 +1,6 @@
+Assignment 2:
+------------
+
 1)
 CREATE TABLE CLIENT_MASTER_TS
 (
@@ -10,6 +13,10 @@ CREATE TABLE CLIENT_MASTER_TS
 	CHECK (CLIENT_NO LIKE 'C%')
 );
 
+--During defining any constraint, we should explicitly give a name
+--but in case of defining check constraint during table creation, it is not mandatory to give any constraint name.
+--Ex: CONSTRAINT CHK_CLIENT_MASTER CHECK (CLIENT_NO LIKE 'C%')
+
 SQL> DESC CLIENT_MASTER_TS;
  Name                                                                                Null?    Type
  ----------------------------------------------------------------------------------- -------- --------------------------------------------------------
@@ -20,6 +27,49 @@ SQL> DESC CLIENT_MASTER_TS;
  STATE                                                                                        VARCHAR2(15)
  BAL_DUE                                                                                      NUMBER(10,2)
 
+SQL> SET LINESIZE 200
+SQL> SET PAGESIZE 100
+SQL> COLUMN CONSTRAINT_NAME FORMAT A30
+SQL> COLUMN COLUMN_NAME FORMAT A30
+
+--SET LINESIZE 200: Increases the number of characters per line before wrapping occurs.
+--SET PAGESIZE 100: Reduces the number of times headers are repeated in the output.
+--COLUMN CONSTRAINT_NAME FORMAT A30: Sets the column width for CONSTRAINT_NAME to 30 characters.
+--COLUMN COLUMN_NAME FORMAT A30: Sets the column width for COLUMN_NAME to 30 characters.
+--(We have to fix column widths of a specific column separately, dynamically is not possible)
+
+--In SQL*Plus, the default values for LINESIZE and PAGESIZE depend on the system and version, but generally, they are:
+--Default LINESIZE (Line Width): 80 characters
+--This means each line of output is limited to 80 characters before wrapping to the next line.
+--Default PAGESIZE (Number of Rows per Page): 14
+--This means the headers are repeated every 14 rows of output.
+SQL> show lines
+linesize 80
+SQL> show pages
+pagesize 14
+
+View columns associated with a constraint:
+-----------------------------------------
+SQL> select constraint_name, column_name from user_cons_columns where table_name = 'CLIENT_MASTER_TS';
+
+CONSTRAINT_NAME                COLUMN_NAME
+------------------------------ ------------------------------
+SYS_C008323                    NAME
+SYS_C008324                    CLIENT_NO
+SYS_C008325                    CLIENT_NO
+
+View all constraints in a table:
+-------------------------------
+SQL>  select constraint_name, constraint_type, search_condition from user_constraints where table_name = 'CLIENT_MASTER_TS';
+
+CONSTRAINT_NAME                C SEARCH_CONDITION
+------------------------------ - --------------------------------------------------------------------------------
+SYS_C008323                    C "NAME" IS NOT NULL
+SYS_C008324                    C CLIENT_NO LIKE 'C%'
+SYS_C008325                    P
+
+--Using these CONSTRAINT_NAME we can drop/remove any constraint
+--Ex: ALTER TABLE CLIENT_MASTER_TS DROP CONSTRAINT SYS_C008325; (Drops the PRIMARY KEY constraint)
 
 CREATE TABLE PRODUCT_MASTER_TS
 (
@@ -95,6 +145,8 @@ CREATE TABLE SALES_ORDER_TS
 	CONSTRAINT SALES_ORDER_TS_SALESMAN_NO FOREIGN KEY(SALESMAN_NO) REFERENCES SALESMAN_MASTER_TS(SALESMAN_NO),
 	CHECK (ORDER_NO LIKE 'O%'AND DELY_TYPE IN ('P','F') AND DELY_DATE>=ORDER_DATE AND ORDER_STATUS IN ('in process','fulfilled','backorder','cancelled'))
 );
+
+-- To check case-insensitive LOWER(ORDER_STATUS) IN ('in process','fulfilled','backorder','cancelled')
 
 SQL> DESC SALES_ORDER_TS
  Name                                      Null?    Type
