@@ -13,10 +13,6 @@ CREATE TABLE CLIENT_MASTER_TS
 	CHECK (CLIENT_NO LIKE 'C%')
 );
 
---During defining any constraint, we should explicitly give a name
---but in case of defining check constraint during table creation, it is not mandatory to give any constraint name.
---Ex: CONSTRAINT CHK_CLIENT_MASTER CHECK (CLIENT_NO LIKE 'C%')
-
 SQL> DESC CLIENT_MASTER_TS;
  Name                                                                                Null?    Type
  ----------------------------------------------------------------------------------- -------- --------------------------------------------------------
@@ -25,7 +21,13 @@ SQL> DESC CLIENT_MASTER_TS;
  CITY                                                                                         VARCHAR2(15)
  PINCODE                                                                                      NUMBER(8)
  STATE                                                                                        VARCHAR2(15)
- BAL_DUE                                                                                      NUMBER(10,2)
+ BAL_DUE  
+
+
+------------------------------------------------------DO NOT WRITE------------------------------------------------------------------------------------
+--During defining any constraint, we should explicitly give a name
+--but in case of defining check constraint during table creation, it is not mandatory to give any constraint name.
+--Ex: CONSTRAINT CHK_CLIENT_MASTER CHECK (CLIENT_NO LIKE 'C%')
 
 SQL> SET LINESIZE 200
 SQL> SET PAGESIZE 100
@@ -47,6 +49,35 @@ SQL> show lines
 linesize 80
 SQL> show pages
 pagesize 14
+
+How to Check the Default Column Width:
+-------------------------------------
+To check the default width of a column, you can query the data dictionary:
+
+1. Get the Defined Column Length:
+   -----------------------------
+SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH 
+FROM USER_TAB_COLUMNS 
+WHERE TABLE_NAME = 'YOUR_TABLE_NAME' AND COLUMN_NAME = 'PRODUCT_NO';
+
+DATA_LENGTH shows the length in bytes for CHAR/VARCHAR2 columns.
+For NUMBER, it is typically 22 bytes (internal storage size, not actual digits displayed).
+
+2. Check the Current Display Format in SQL*Plus:
+   --------------------------------------------
+COLUMN PRODUCT_NO
+
+This will show if a format has been applied.
+
+3. Reset to Default Width:
+   ----------------------
+If you've set a custom width and want to revert to default:
+
+CLEAR COLUMNS
+
+or
+
+COLUMN PRODUCT_NO CLEAR
 
 View columns associated with a constraint:
 -----------------------------------------
@@ -70,6 +101,8 @@ SYS_C008325                    P
 
 --Using these CONSTRAINT_NAME we can drop/remove any constraint
 --Ex: ALTER TABLE CLIENT_MASTER_TS DROP CONSTRAINT SYS_C008325; (Drops the PRIMARY KEY constraint)
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 CREATE TABLE PRODUCT_MASTER_TS
 (
@@ -194,17 +227,16 @@ INSERT INTO CLIENT_MASTER_TS VALUES('C00006','Deepak Sharma','Mangalore',560050,
 
 SQL> select * from client_master_ts;
 
-CLIENT NAME                 CITY               PINCODE STATE              BAL_DUE
------- -------------------- --------------- ---------- --------------- ----------
-C00001 Ivan Bayross         Mumbai              400054 Maharashtra          15000
-C00002 Mamta Mazumdar       Madras              780001 Tamil Nadu               0
-C00003 Chhaya Bankar        Mumbai              400057 Maharashtra           5000
-C00004 Ashwini Joshi        Bangalore           560001 Karnataka                0
-C00005 Hansel Colaco        Mumbai              400060 Maharashtra           2000
-C00006 Deepak Sharma        Mangalore           560050 Karnataka                0
+CLIENT_NO  NAME                 CITY               PINCODE STATE              BAL_DUE
+---------- -------------------- --------------- ---------- --------------- ----------
+C00001     Ivan Bayross         Mumbai              400054 Maharashtra          15000
+C00002     Mamta Mazumdar       Madras              780001 Tamil Nadu               0
+C00003     Chhaya Bankar        Mumbai              400057 Maharashtra           5000
+C00004     Ashwini Joshi        Bangalore           560001 Karnataka                0
+C00005     Hansel Colaco        Mumbai              400060 Maharashtra           2000
+C00006     Deepak Sharma        Mangalore           560050 Karnataka                0
 
 6 rows selected.
-
 
 
 INSERT INTO PRODUCT_MASTER_TS VALUES('P00001','T-Shirts',5,'Piece',200,50,350,250);
@@ -219,17 +251,17 @@ INSERT INTO PRODUCT_MASTER_TS VALUES('P08865','Skirts',5,'Piece',75,30,450,300);
 
 SQL> select * from product_master_ts;
 
-PRODUC DESCRIPTION     PROFIT_PERCENT UNIT_MEASU QTY_ON_HAND REORDER_LVL SELL_PRICE COST_PRICE
------- --------------- -------------- ---------- ----------- ----------- ---------- ----------
-P00001 T-Shirts                     5 Piece              200          50        350        250
-P0345  Shirts                       6 Piece              150          50        500        350
-P06734 Cotton Jeans                 5 Piece              100          20        600        450
-P07865 Jeans                        5 Piece              100          20        750        500
-P07868 Trousers                     2 Piece              150          50        850        550
-P07885 PuM-Overs                  2.5 Piece               80          30        700        450
-P07965 Denim Shirts                 4 Piece              100          40        350        250
-P07975 Lyers Tops                   5 Piece               70          30        300        175
-P08865 Skirts                       5 Piece               75          30        450        300
+PRODUCT_NO DESCRIPTION     PROFIT_PERCENT UNIT_MEASURE    QTY_ON_HAND REORDER_LVL SELL_PRICE COST_PRICE
+---------- --------------- -------------- --------------- ----------- ----------- ---------- ----------
+P00001     T-Shirts                     5 Piece                   200          50        350        250
+P0345      Shirts                       6 Piece                   150          50        500        350
+P06734     Cotton Jeans                 5 Piece                   100          20        600        450
+P07865     Jeans                        5 Piece                   100          20        750        500
+P07868     Trousers                     2 Piece                   150          50        850        550
+P07885     PuM-Overs                  2.5 Piece                    80          30        700        450
+P07965     Denim Shirts                 4 Piece                   100          40        350        250
+P07975     Lyers Tops                   5 Piece                    70          30        300        175
+P08865     Skirts                       5 Piece                    75          30        450        300
 
 9 rows selected.
 
@@ -258,17 +290,18 @@ INSERT INTO SALES_ORDER_TS VALUES('O19008','26-July-02','C00005',NULL,'S00004','
 
 SQL> select * from sales_order_ts;
 
-ORDER_ ORDER_DAT CLIENT DELY_ADDRESS              SALESM D B DELY_DATE ORDER_STAT
------- --------- ------ ------------------------- ------ - - --------- ----------
-O19001 20-JUL-02 C00001                           S00001 F N 12-JUN-04 in process
-O19002 27-JUN-02 C00002                           S00002 P N 25-JUN-04 cancelled
-O46865 20-FEB-02 C00003                           S00003 F Y 18-FEB-04 fulfilled
-O19003 07-APR-02 C00001                           S00001 F Y 03-APR-04 fulfilled
-O46866 22-MAY-02 C00004                           S00002 P N 20-MAY-04 cancelled
-O19008 26-JUL-02 C00005                           S00004 F N 24-MAY-04 in process
+SQL> select * from sales_order_ts;
+
+ORDER_NO   ORDER_DATE CLIENT_NO  DELY_ADDRESS              SALESMAN_NO     DELY_TYPE  BILLED_YN  DELY_DATE ORDER_STATUS
+---------- ---------- ---------- ------------------------- --------------- ---------- ---------- --------- ---------------
+O19001     20-JUL-02  C00001                               S00001          F          N          12-JUN-04 in process
+O19002     27-JUN-02  C00002                               S00002          P          N          25-JUN-04 cancelled
+O46865     20-FEB-02  C00003                               S00003          F          Y          18-FEB-04 fulfilled
+O19003     07-APR-02  C00001                               S00001          F          Y          03-APR-04 fulfilled
+O46866     22-MAY-02  C00004                               S00002          P          N          20-MAY-04 cancelled
+O19008     26-JUL-02  C00005                               S00004          F          N          24-MAY-04 in process
 
 6 rows selected.
-
 
 
 INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19001','P00001',4,4,525);
@@ -291,32 +324,54 @@ INSERT INTO SALES_ORDER_DETAILS_TS VALUES('O19008','P07975',5,3,1050);
 
 SQL> SELECT * FROM SALES_ORDER_DETAILS_TS;
 
-ORDER_ PRODUC QTY_ORDERED   QTY_DISP PRODUCT_RATE
------- ------ ----------- ---------- ------------
-O19001 P00001           4          4          525
-O19001 P07965           2          1         8400
-O19001 P07885           2          1         5250
-O19002 P00001          10          0          525
-O46865 P07868           3          3         3150
-O46865 P07885           3          1         5250
-O46865 P00001          10         10          525
-O46865 P0345            4          4         1050
-O19003 P06734           1          1        12000
-O46866 P07965           1          0         8400
-O46866 P07975           1          0         1050
-O19008 P00001          10          5          525
-O19008 P07975           5          3         1050
+ORDER_NO   PRODUCT_NO QTY_ORDERED   QTY_DISP PRODUCT_RATE
+---------- ---------- ----------- ---------- ------------
+O19001     P00001               4          4          525
+O19001     P07965               2          1         8400
+O19001     P07885               2          1         5250
+O19002     P00001              10          0          525
+O46865     P07868               3          3         3150
+O46865     P07885               3          1         5250
+O46865     P00001              10         10          525
+O46865     P0345                4          4         1050
+O19003     P06734               1          1        12000
+O46866     P07965               1          0         8400
+O46866     P07975               1          0         1050
+O19008     P00001              10          5          525
+O19008     P07975               5          3         1050
 
 13 rows selected.
 
 
 3)
 a)
-SELECT NAME FROM CLIENT_MASTER_TS WHERE NAME LIKE '%a';
+SQL> SELECT CLIENT_NO, NAME FROM CLIENT_MASTER_TS WHERE NAME LIKE '_a%';
 
-
-NAME
---------------------
-Deepak Sharma
+CLIENT_NO  NAME
+---------- --------------------
+C00002     Mamta Mazumdar
+C00005     Hansel Colaco
 
 b)
+SQL>  SELECT CLIENT_NO, NAME, CITY FROM CLIENT_MASTER_TS WHERE CITY LIKE '_a%';
+
+CLIENT_NO  NAME                 CITY
+---------- -------------------- ---------------
+C00002     Mamta Mazumdar       Madras
+C00004     Ashwini Joshi        Bangalore
+C00006     Deepak Sharma        Mangalore
+
+c)
+SQL> SELECT CLIENT_NO, NAME, CITY FROM CLIENT_MASTER_TS WHERE CITY IN ('Bombay','Delhi');
+
+no rows selected
+
+d)
+SQL> SELECT CLIENT_NO, NAME, BAL_DUE FROM CLIENT_MASTER_TS WHERE BAL_DUE > 10000;
+
+CLIENT_NO  NAME                    BAL_DUE
+---------- -------------------- ----------
+C00001     Ivan Bayross              15000
+
+e)
+
