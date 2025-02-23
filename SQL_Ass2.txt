@@ -374,4 +374,99 @@ CLIENT_NO  NAME                    BAL_DUE
 C00001     Ivan Bayross              15000
 
 e)
+SQL> SELECT * FROM SALES_ORDER_TS WHERE TO_CHAR(ORDER_DATE, 'MONTH') = 'JANUARY';
 
+no rows selected
+
+f)
+SQL> SELECT * FROM SALES_ORDER_TS WHERE CLIENT_NO IN ('C00001','C00002');
+
+ORDER_NO   ORDER_DATE CLIENT_NO  DELY_ADDRESS              SALESMAN_NO     DELY_TYPE  BILLED_YN  DELY_DATE ORDER_STATUS
+---------- ---------- ---------- ------------------------- --------------- ---------- ---------- --------- ---------------
+O19001     20-JUL-02  C00001                               S00001          F          N          12-JUN-04 in process
+O19002     27-JUN-02  C00002                               S00002          P          N          25-JUN-04 cancelled
+O19003     07-APR-02  C00001                               S00001          F          Y          03-APR-04 fulfilled
+
+g)
+SQL> SELECT PRODUCT_NO, DESCRIPTION, SELL_PRICE FROM PRODUCT_MASTER_TS WHERE SELL_PRICE>200 AND SELL_PRICE<=500;
+
+PRODUCT_NO DESCRIPTION     SELL_PRICE
+---------- --------------- ----------
+P00001     T-Shirts               350
+P0345      Shirts                 500
+P07965     Denim Shirts           350
+P07975     Lyers Tops             300
+P08865     Skirts                 450
+
+h)
+SQL> SELECT PRODUCT_NO, DESCRIPTION, SELL_PRICE, SELL_PRICE*0.15 NEW_PRICE FROM PRODUCT_MASTER_TS WHERE SELL_PRICE>150;
+
+PRODUCT_NO DESCRIPTION     SELL_PRICE  NEW_PRICE
+---------- --------------- ---------- ----------
+P00001     T-Shirts               350       52.5
+P0345      Shirts                 500         75
+P06734     Cotton Jeans           600         90
+P07865     Jeans                  750      112.5
+P07868     Trousers               850      127.5
+P07885     PuM-Overs              700        105
+P07965     Denim Shirts           350       52.5
+P07975     Lyers Tops             300         45
+P08865     Skirts                 450       67.5
+
+9 rows selected.
+
+i)
+SQL> SELECT CLIENT_NO, NAME, CITY, STATE FROM CLIENT_MASTER_TS WHERE STATE <> 'Maharashtra';
+
+CLIENT_NO  NAME                 CITY            STATE
+---------- -------------------- --------------- ---------------
+C00002     Mamta Mazumdar       Madras          Tamil Nadu
+C00004     Ashwini Joshi        Bangalore       Karnataka
+C00006     Deepak Sharma        Mangalore       Karnataka
+
+j)
+SQL> SELECT COUNT(*) "TOTAL NUMBER OF ORDERS" FROM SALES_ORDER_TS;
+
+TOTAL NUMBER OF ORDERS
+----------------------
+                     6
+
+k)
+SQL> SELECT ROUND(AVG(SELL_PRICE),2) "AVERAGE PRICE OF ALL PRODUCTS" FROM PRODUCT_MASTER_TS;
+
+AVERAGE PRICE OF ALL PRODUCTS
+-----------------------------
+                       538.89
+
+l)
+SQL> SELECT MAX(SELL_PRICE) MAX_PRICE, MIN(SELL_PRICE) MIN_PRICE FROM PRODUCT_MASTER_TS;
+
+ MAX_PRICE  MIN_PRICE
+---------- ----------
+       850        300
+
+m)
+SQL> SELECT COUNT(PRODUCT_NO) "NUMBER OF PRODUCTS HAVING SELL_PRICE>=150" FROM PRODUCT_MASTER_TS WHERE SELL_PRICE>=150;
+
+NUMBER OF PRODUCTS HAVING SELL_PRICE>=150
+-----------------------------------------
+                                        9
+
+n)
+SQL> SELECT PRODUCT_NO, DESCRIPTION FROM PRODUCT_MASTER_TS WHERE QTY_ON_HAND < REORDER_LVL;
+
+no rows selected
+
+o)
+SQL> SELECT ORDER_NO, ORDER_DATE FROM SALES_ORDER_TS;
+
+ORDER_NO   ORDER_DATE
+---------- ----------
+O19001     20-JUL-02
+O19002     27-JUN-02
+O46865     20-FEB-02
+O19003     07-APR-02
+O46866     22-MAY-02
+O19008     26-JUL-02
+
+6 rows selected.
