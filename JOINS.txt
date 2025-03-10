@@ -1,0 +1,217 @@
+CREATE TABLE EMPLOYEES
+(
+	EMP_ID NUMBER(10) PRIMARY KEY,
+	EMP_NAME VARCHAR2(20),
+	DEPT_ID NUMBER(10),
+);
+
+CREATE TABLE DEPARTMENTS
+(
+	DEPT_ID NUMBER(10) PRIMARY KEY,
+	DEPT_NAME VARCHAR2(20)
+);
+
+INSERT INTO DEPARTMENTS VALUES(101,'HR');
+INSERT INTO DEPARTMENTS VALUES(102,'IT');
+INSERT INTO DEPARTMENTS VALUES(104,'Finance');
+
+INSERT INTO EMPLOYEES VALUES(1,'Alice',101);
+INSERT INTO EMPLOYEES VALUES(2,'Bob',102);
+INSERT INTO EMPLOYEES VALUES(3,'Charlie',103);
+INSERT INTO EMPLOYEES VALUES(4,'David',NULL);
+
+SQL> SELECT * FROM DEPARTMENTS;
+
+   DEPT_ID DEPT_NAME
+---------- --------------------
+       101 HR
+       102 IT
+       104 Finance
+
+SQL> SELECT * FROM EMPLOYEES;
+
+    EMP_ID EMP_NAME                DEPT_ID
+---------- -------------------- ----------
+         1 Alice                       101
+         2 Bob                         102
+         4 David
+         3 Charlie                     103
+
+1. INNER JOIN:
+   ----------
+SQL> SELECT * FROM EMPLOYEES E INNER JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+
+SQL> SELECT * FROM EMPLOYEES E JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+
+SQL> SELECT * FROM EMPLOYEES E, DEPARTMENTS D WHERE E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+
+2. LEFT OUTER JOIN:
+   ---------------
+SQL> SELECT * FROM EMPLOYEES E LEFT OUTER JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+         3 Charlie                     103
+         4 David
+
+SQL> SELECT * FROM EMPLOYEES E LEFT JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+         3 Charlie                     103
+         4 David
+
+SQL> SELECT * FROM EMPLOYEES E, DEPARTMENTS D WHERE E.DEPT_ID = D.DEPT_ID (+);
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+         3 Charlie                     103
+         4 David
+
+3. RIGHT OUTER JOIN:
+   ----------------
+SQL> SELECT * FROM EMPLOYEES E RIGHT OUTER JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+                                                  104 Finance
+
+SQL> SELECT * FROM EMPLOYEES E RIGHT JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+                                                  104 Finance
+
+SQL> SELECT * FROM EMPLOYEES E, DEPARTMENTS D WHERE E.DEPT_ID (+) = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+                                                  104 Finance
+
+4. FULL OUTER JOIN:
+   ---------------
+SQL> SELECT * FROM EMPLOYEES E FULL OUTER JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+         4 David
+         3 Charlie                     103
+                                                  104 Finance
+
+SQL> SELECT * FROM EMPLOYEES E FULL JOIN DEPARTMENTS D ON E.DEPT_ID = D.DEPT_ID;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        102 IT
+         4 David
+         3 Charlie                     103
+                                                  104 Finance
+
+5. CROSS JOIN:
+   ----------
+SQL> SELECT * FROM EMPLOYEES E CROSS JOIN DEPARTMENTS D;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        101 HR
+         4 David                                  101 HR
+         3 Charlie                     103        101 HR
+         1 Alice                       101        102 IT
+         2 Bob                         102        102 IT
+         4 David                                  102 IT
+         3 Charlie                     103        102 IT
+         1 Alice                       101        104 Finance
+         2 Bob                         102        104 Finance
+         4 David                                  104 Finance
+         3 Charlie                     103        104 Finance
+
+12 rows selected.
+
+6. SELF JOIN:
+   ---------
+SQL> SELECT E1.EMP_NAME EMPLOYEE, E2.EMP_NAME MANAGER FROM EMPLOYEES E1 LEFT JOIN EMPLOYEES E2 ON E1.EMP_ID = E2.DEPT_ID;
+
+EMPLOYEE             MANAGER
+-------------------- --------------------
+Alice
+Bob
+David
+Charlie
+
+(REFER TO EMP TABLE OF ORACLE 11G FOR SELF REFERENCING --- EMPNO & MGR)
+
+7. NATURAL JOIN:
+   ------------
+SQL> SELECT * FROM EMPLOYEES NATURAL JOIN DEPARTMENTS;
+
+   DEPT_ID     EMP_ID EMP_NAME             DEPT_NAME
+---------- ---------- -------------------- --------------------
+       101          1 Alice                HR
+       102          2 Bob                  IT
+
+8. USING clause in JOIN:
+   --------------------
+SQL> SELECT * FROM EMPLOYEES JOIN DEPARTMENTS USING (DEPT_ID);
+
+   DEPT_ID     EMP_ID EMP_NAME             DEPT_NAME
+---------- ---------- -------------------- --------------------
+       101          1 Alice                HR
+       102          2 Bob                  IT
+
+SQL> SELECT * FROM EMPLOYEES LEFT JOIN DEPARTMENTS USING (DEPT_ID);
+
+   DEPT_ID     EMP_ID EMP_NAME             DEPT_NAME
+---------- ---------- -------------------- --------------------
+       101          1 Alice                HR
+       102          2 Bob                  IT
+       103          3 Charlie
+                    4 David
+
+SQL> SELECT * FROM EMPLOYEES RIGHT JOIN DEPARTMENTS USING (DEPT_ID);
+
+   DEPT_ID     EMP_ID EMP_NAME             DEPT_NAME
+---------- ---------- -------------------- --------------------
+       101          1 Alice                HR
+       102          2 Bob                  IT
+       104                                 Finance
+
+SQL> SELECT * FROM EMPLOYEES FULL JOIN DEPARTMENTS USING (DEPT_ID);
+
+   DEPT_ID     EMP_ID EMP_NAME             DEPT_NAME
+---------- ---------- -------------------- --------------------
+       101          1 Alice                HR
+       102          2 Bob                  IT
+                    4 David
+       103          3 Charlie
+       104                                 Finance
