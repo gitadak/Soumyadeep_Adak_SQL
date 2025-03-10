@@ -158,6 +158,25 @@ SQL> SELECT * FROM EMPLOYEES E CROSS JOIN DEPARTMENTS D;
 
 12 rows selected.
 
+SQL> SELECT * FROM EMPLOYEES, DEPARTMENTS;
+
+    EMP_ID EMP_NAME                DEPT_ID    DEPT_ID DEPT_NAME
+---------- -------------------- ---------- ---------- --------------------
+         1 Alice                       101        101 HR
+         2 Bob                         102        101 HR
+         4 David                                  101 HR
+         3 Charlie                     103        101 HR
+         1 Alice                       101        102 IT
+         2 Bob                         102        102 IT
+         4 David                                  102 IT
+         3 Charlie                     103        102 IT
+         1 Alice                       101        104 Finance
+         2 Bob                         102        104 Finance
+         4 David                                  104 Finance
+         3 Charlie                     103        104 Finance
+
+12 rows selected.
+
 6. SELF JOIN:
    ---------
 SQL> SELECT E1.EMP_NAME EMPLOYEE, E2.EMP_NAME MANAGER FROM EMPLOYEES E1 LEFT JOIN EMPLOYEES E2 ON E1.EMP_ID = E2.DEPT_ID;
