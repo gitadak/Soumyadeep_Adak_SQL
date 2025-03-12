@@ -1,0 +1,231 @@
+1)
+
+CREATE TABLE SAILORS_TS
+(
+	S_ID NUMBER(4) PRIMARY KEY,
+	S_NAME VARCHAR2(20),
+	RATING NUMBER(1),
+	AGE NUMBER(2)
+);
+
+
+CREATE TABLE BOATS_TS
+(
+	B_ID NUMBER(4) PRIMARY KEY,
+	B_NAME VARCHAR2(10),
+	COLOR VARCHAR2(10)
+);
+
+CREATE TABLE RESERVES_TS
+(
+	S_ID NUMBER(4),
+	B_ID NUMBER(4),
+	DAY VARCHAR2(10),
+	PRIMARY KEY (S_ID,B_ID),
+	CONSTRAINT FK_SAILORS_TS FOREIGN KEY (S_ID) REFERENCES SAILORS_TS(S_ID),
+	CONSTRAINT FK_BOATS_TS FOREIGN KEY (B_ID) REFERENCES BOATS_TS(B_ID)
+);
+
+INSERT INTO SAILORS_TS VALUES(1001,'Tarun',3,55);
+INSERT INTO SAILORS_TS VALUES(1002,'Rakesh',5,65);
+INSERT INTO SAILORS_TS VALUES(1003,'Abir',2,60);
+INSERT INTO SAILORS_TS VALUES(1004,'Akash',1,58);
+INSERT INTO SAILORS_TS VALUES(1005,'Adam',3,61);
+
+INSERT INTO BOATS_TS VALUES(2001,'Titanic','Red');
+INSERT INTO BOATS_TS VALUES(2002,'BOE-200','White');
+INSERT INTO BOATS_TS VALUES(2003,'AFG-21','Green');
+INSERT INTO BOATS_TS VALUES(2004,'SAL-123','Blue');
+INSERT INTO BOATS_TS VALUES(2005,'Tiger','Yellow');
+
+INSERT INTO RESERVES_TS VALUES(1001,2003,'Monday');
+INSERT INTO RESERVES_TS VALUES(1002,2004,'Tuesday');
+INSERT INTO RESERVES_TS VALUES(1001,2002,'Thursday');
+INSERT INTO RESERVES_TS VALUES(1003,2004,'Monday');
+INSERT INTO RESERVES_TS VALUES(1004,2003,'Friday');
+
+SQL> SELECT * FROM SAILORS_TS;
+
+      S_ID S_NAME                   RATING        AGE
+---------- -------------------- ---------- ----------
+      1001 Tarun                         3         55
+      1002 Rakesh                        5         65
+      1003 Abir                          2         60
+      1004 Akash                         1         58
+      1005 Adam                          3         61
+
+SQL> SELECT * FROM BOATS_TS;
+
+      B_ID B_NAME     COLOR
+---------- ---------- ----------
+      2001 Titanic    Red
+      2002 BOE-200    White
+      2003 AFG-21     Green
+      2004 SAL-123    Blue
+      2005 Tiger      Yellow
+
+SQL> SELECT * FROM RESERVES_TS;
+
+      S_ID       B_ID DAY
+---------- ---------- ----------
+      1001       2003 Monday
+      1002       2004 Tuesday
+      1001       2002 Thursday
+      1003       2004 Monday
+      1004       2003 Friday
+
+a)
+SQL> SELECT B.B_NAME, B.COLOR FROM SAILORS_TS S, BOATS_TS B, RESERVES_TS R WHERE R.S_ID = S.S_ID AND R.B_ID = B.B_ID AND S.S_NAME = 'Tarun';
+
+B_NAME     COLOR
+---------- ----------
+BOE-200    White
+AFG-21     Green
+
+b)
+SQL> SELECT S.S_ID, S.S_NAME FROM SAILORS_TS S, RESERVES_TS R WHERE R.S_ID = S.S_ID AND R.DAY = 'Monday';
+
+      S_ID S_NAME
+---------- --------------------
+      1001 Tarun
+      1003 Abir
+
+c)
+SQL> SELECT B_ID, B_NAME, COLOR FROM BOATS_TS WHERE COLOR IN ('Red','Green');
+
+      B_ID B_NAME     COLOR
+---------- ---------- ----------
+      2001 Titanic    Red
+      2003 AFG-21     Green
+
+d)
+SQL> DELETE FROM SAILORS_TS WHERE AGE > 60;
+DELETE FROM SAILORS_TS WHERE AGE > 60
+*
+ERROR at line 1:
+ORA-02292: integrity constraint (CSE1.FK_SAILORS_TS) violated - child record found
+
+
+2)
+
+CREATE TABLE TEACHER_TS
+(
+	TID VARCHAR2(4) PRIMARY KEY,
+	NAME VARCHAR2(20),
+	DEPT VARCHAR2(10)
+);
+
+CREATE TABLE SUBJECT_TS
+(
+	SUBNO VARCHAR2(4) PRIMARY KEY,
+	SUBTITLE VARCHAR2(20)
+);
+
+CREATE TABLE TAUGHTBY_TS
+(
+	TID VARCHAR2(4),
+	SUBNO VARCHAR2(4),
+	PRIMARY KEY (TID,SUBNO),
+	CONSTRAINT FK_TID_TS FOREIGN KEY (TID) REFERENCES TEACHER_TS(TID),
+	CONSTRAINT FK_SUBNO_TS FOREIGN KEY (SUBNO) REFERENCES SUBJECT_TS(SUBNO)
+);
+
+CREATE TABLE STUDENT_TS
+(
+	ROLLNO NUMBER(2) PRIMARY KEY,
+	SNAME VARCHAR2(20),
+	CITY VARCHAR2(10)
+);
+
+INSERT INTO TEACHER_TS VALUES('T001','Lokesh','Physics');
+INSERT INTO TEACHER_TS VALUES('T002','Rakesh','Chemistry');
+INSERT INTO TEACHER_TS VALUES('T003','Rajib','Computer');
+INSERT INTO TEACHER_TS VALUES('T004','Arunava','Physics');
+
+INSERT INTO SUBJECT_TS VALUES('S001','Thermodynamics');
+INSERT INTO SUBJECT_TS VALUES('S002','Astrophysics');
+INSERT INTO SUBJECT_TS VALUES('S003','SQL');
+INSERT INTO SUBJECT_TS VALUES('S004','Hardware');
+
+INSERT INTO TAUGHTBY_TS VALUES('T001','S001');
+INSERT INTO TAUGHTBY_TS VALUES('T002','S004');
+INSERT INTO TAUGHTBY_TS VALUES('T001','S002');
+INSERT INTO TAUGHTBY_TS VALUES('T003','S001');
+
+INSERT INTO STUDENT_TS VALUES(1,'Soumyadeep','Howrah');
+INSERT INTO STUDENT_TS VALUES(21,'Raja','Kolkata');
+INSERT INTO STUDENT_TS VALUES(15,'Binoy','Burdwan');
+INSERT INTO STUDENT_TS VALUES(62,'Souhardya','Barasat');
+
+SQL> SELECT * FROM TEACHER_TS;
+
+TID  NAME                 DEPT
+---- -------------------- ----------
+T001 Lokesh               Physics
+T002 Rakesh               Chemistry
+T003 Rajib                Computer
+T004 Arunava              Physics
+
+SQL> SELECT * FROM SUBJECT_TS;
+
+SUBN SUBTITLE
+---- --------------------
+S001 Thermodynamics
+S002 Astrophysics
+S003 SQL
+S004 Hardware
+
+SQL> SELECT * FROM TAUGHTBY_TS;
+
+TID  SUBN
+---- ----
+T001 S001
+T001 S002
+T002 S004
+T003 S001
+
+SQL> SELECT * FROM STUDENT_TS;
+
+    ROLLNO SNAME                CITY
+---------- -------------------- ----------
+         1 Soumyadeep           Howrah
+        21 Raja                 Kolkata
+        15 Binoy                Burdwan
+        62 Souhardya            Barasat
+
+
+a)
+SELECT TE.NAME FROM TEACHER_TS TE, SUBJECT_TS SU, TAUGHTBY_TS TA WHERE TE.TID = TA.TID AND SU.SUBNO = TA.SUBNO AND TE.DEPT = 'Physics' and SU.SUBTITLE = 'Thermodynamics';
+
+NAME
+--------------------
+Lokesh
+
+b)
+SQL> UPDATE SUBJECT_TS SET SUBTITLE = 'RDBMS' WHERE SUBTITLE = 'SQL';
+
+1 row updated.
+
+SQL> SELECT * FROM SUBJECT_TS;
+
+SUBN SUBTITLE
+---- --------------------
+S001 Thermodynamics
+S002 Astrophysics
+S003 RDBMS
+S004 Hardware
+
+c)
+SQL> SELECT * FROM STUDENT_TS WHERE CITY = 'Kolkata' AND (ROLLNO BETWEEN 20 AND 25);
+
+    ROLLNO SNAME                CITY
+---------- -------------------- ----------
+        21 Raja                 Kolkata
+
+d)
+SQL> SELECT * FROM STUDENT_TS WHERE CITY = 'Kolkata' ORDER BY ROLLNO DESC;
+
+    ROLLNO SNAME                CITY
+---------- -------------------- ----------
+        21 Raja                 Kolkata
+
