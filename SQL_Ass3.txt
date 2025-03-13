@@ -155,7 +155,7 @@ Developer                  5000       5000       5000       5000
 Salesman                   8000       5000      13000       6500
 
 j)
-SQL> SELECT COUNT(JOB) "Number of managers" FROM EMP_TS_ASS2 WHERE JOB = 'Manager';
+SQL> SELECT COUNT(EMPNO) "Number of managers" FROM EMP_TS_ASS2 WHERE JOB = 'Manager';
 
 Number of managers
 ------------------
