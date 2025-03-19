@@ -1,0 +1,235 @@
+CREATE TABLE ZIPCODES_TS
+(
+	ZIP NUMBER(6) PRIMARY KEY,
+	CITY VARCHAR2(20)
+);
+
+
+CREATE TABLE EMPLOYEES_TS
+(
+	ENO VARCHAR2(4) PRIMARY KEY,
+	ENAME VARCHAR2(20),
+	ZIP NUMBER(6),
+	HDATE DATE,
+	CONSTRAINT FK_ZIP FOREIGN KEY (ZIP) REFERENCES ZIPCODES_TS(ZIP)
+);
+
+
+CREATE TABLE PARTS_TS
+(
+	PNO VARCHAR2(4) PRIMARY KEY,
+	PNAME VARCHAR2(20),
+	QOH NUMBER(4),
+	PRICE NUMBER(8,2),
+	REORDER_LEVEL NUMBER(4)
+);
+
+
+CREATE TABLE CUSTOMERS_TS
+(
+	CNO VARCHAR2(4) PRIMARY KEY,
+	CNAME VARCHAR2(20),
+	STREET VARCHAR2(30),
+	ZIP NUMBER(6),
+	PHONE NUMBER(10),
+	CONSTRAINT FK_ZIP_CUSTOMER FOREIGN KEY (ZIP) REFERENCES ZIPCODES_TS(ZIP)
+);
+
+
+CREATE TABLE ORDERS_TS
+(
+	ONO VARCHAR2(4) PRIMARY KEY,
+	CNO VARCHAR2(4),
+	ENO VARCHAR2(4),
+	RECEIVED DATE,
+	SHIPPED DATE,
+	CONSTRAINT FK_CNO FOREIGN KEY (CNO) REFERENCES CUSTOMERS_TS(CNO),
+	CONSTRAINT FK_ENO FOREIGN KEY (ENO) REFERENCES EMPLOYEES_TS(ENO)
+);
+
+
+CREATE TABLE ODETAILS_TS
+(
+	ONO VARCHAR2(4),
+	PNO VARCHAR2(4),
+	QTY NUMBER(4),
+	PRIMARY KEY (ONO,PNO),
+	CONSTRAINT FK_ONO FOREIGN KEY (ONO) REFERENCES ORDERS_TS(ONO),
+	CONSTRAINT FK_PNO FOREIGN KEY (PNO) REFERENCES PARTS_TS(PNO)
+);
+
+
+INSERT INTO ZIPCODES_TS VALUES (711302,'Howrah');
+INSERT INTO ZIPCODES_TS VALUES (711305,'Kolkata');
+INSERT INTO ZIPCODES_TS VALUES (700501,'Mumbai');
+INSERT INTO ZIPCODES_TS VALUES (710305,'Birbhum');
+INSERT INTO ZIPCODES_TS VALUES (715602,'Nadia');
+
+SQL> SELECT * FROM ZIPCODES_TS;
+
+       ZIP CITY
+---------- --------------------
+    711302 Howrah
+    711305 Kolkata
+    700501 Mumbai
+    710305 Birbhum
+    715602 Nadia
+
+
+INSERT INTO EMPLOYEES_TS VALUES ('E001','Soumyadeep Adak',711302,'22-JAN-2025');
+INSERT INTO EMPLOYEES_TS VALUES ('E002','Ram Das',715602,'28-JAN-2023');
+INSERT INTO EMPLOYEES_TS VALUES ('E003','Shreyosi Dutta',710305,'12-MAR-2024');
+INSERT INTO EMPLOYEES_TS VALUES ('E004','Akash Pal',700501,'30-DEC-2022');
+
+SQL> SELECT * FROM EMPLOYEES_TS;
+
+ENO  ENAME                       ZIP HDATE
+---- -------------------- ---------- ---------
+E001 Soumyadeep Adak          711302 22-JAN-25
+E002 Ram Das                  715602 28-JAN-23
+E003 Shreyosi Dutta           710305 12-MAR-24
+E004 Akash Pal                700501 30-DEC-22
+
+
+INSERT INTO PARTS_TS VALUES ('P001','Bolt',23,15,10);
+INSERT INTO PARTS_TS VALUES ('P002','Drill Machine',50,26000,30);
+INSERT INTO PARTS_TS VALUES ('P003','Tyre',100,10000,50);
+INSERT INTO PARTS_TS VALUES ('P004','Tube',150,150,20);
+INSERT INTO PARTS_TS VALUES ('P005','Steering',500,21000,100);
+
+SQL> SELECT * FROM PARTS_TS;
+
+PNO  PNAME                       QOH      PRICE REORDER_LEVEL
+---- -------------------- ---------- ---------- -------------
+P001 Bolt                         23         15            10
+P002 Drill Machine                50      26000            30
+P003 Tyre                        100      10000            50
+P004 Tube                        150        150            20
+P005 Steering                    500      21000           100
+
+
+INSERT INTO CUSTOMERS_TS VALUES ('C001','Subham Das','MG Road',711305,9632587410);
+INSERT INTO CUSTOMERS_TS VALUES ('C002','Rakesh Bhoslae','GB Road',700501,7412589635);
+INSERT INTO CUSTOMERS_TS VALUES ('C003','Suvendu Das','GT Road',715602,7896541230);
+INSERT INTO CUSTOMERS_TS VALUES ('C004','Shyam Mondal','Carrie Road',700501,9753951468);
+
+SQL> SELECT * FROM CUSTOMERS_TS;
+
+CNO  CNAME                STREET                                ZIP      PHONE
+---- -------------------- ------------------------------ ---------- ----------
+C001 Subham Das           MG Road                            711305 9632587410
+C002 Rakesh Bhoslae       GB Road                            700501 7412589635
+C003 Suvendu Das          GT Road                            715602 7896541230
+C004 Shyam Mondal         Carrie Road                        700501 9753951468
+
+
+INSERT INTO ORDERS_TS VALUES ('O001','C002','E004','01-MAR-2025','12-MAR-2025');
+INSERT INTO ORDERS_TS VALUES ('O002','C002','E001','10-MAR-2025',NULL);
+INSERT INTO ORDERS_TS VALUES ('O003','C001','E002','15-FEB-2025','14-MAR-2025');
+INSERT INTO ORDERS_TS VALUES ('O004','C003','E004','01-MAR-2025',NULL);
+
+SQL> SELECT * FROM ORDERS_TS;
+
+ONO  CNO  ENO  RECEIVED  SHIPPED
+---- ---- ---- --------- ---------
+O001 C002 E004 01-MAR-25 12-MAR-25
+O002 C002 E001 10-MAR-25
+O003 C001 E002 15-FEB-25 14-MAR-25
+O004 C003 E004 01-MAR-25
+
+
+INSERT INTO ODETAILS_TS VALUES ('O001','P002',20);
+INSERT INTO ODETAILS_TS VALUES ('O003','P004',50);
+INSERT INTO ODETAILS_TS VALUES ('O002','P001',200);
+INSERT INTO ODETAILS_TS VALUES ('O004','P002',100);
+
+SQL> SELECT * FROM ODETAILS_TS;
+
+ONO  PNO         QTY
+---- ---- ----------
+O001 P002         20
+O003 P004         50
+O002 P001        200
+O004 P002        100
+
+
+1)
+a)
+SQL> SELECT PNO, PNAME, PRICE FROM PARTS_TS WHERE PRICE < 20;
+
+PNO  PNAME                     PRICE
+---- -------------------- ----------
+P001 Bolt                         15
+
+b)
+SQL> SELECT OD.PNO FROM ODETAILS_TS OD, ORDERS_TS ORD WHERE ORD.ONO = OD.ONO AND ORD.SHIPPED IS NOT NULL;
+
+PNO
+----
+P002
+P004
+
+c)
+SQL> SELECT * FROM CUSTOMERS_TS WHERE CNAME LIKE 'S%';
+
+CNO  CNAME                STREET                                ZIP      PHONE
+---- -------------------- ------------------------------ ---------- ----------
+C001 Subham Das           MG Road                            711305 9632587410
+C003 Suvendu Das          GT Road                            715602 7896541230
+C004 Shyam Mondal         Carrie Road                        700501 9753951468
+
+d)
+SQL> SELECT ORD.ONO, C.CNAME FROM ORDERS_TS ORD, CUSTOMERS_TS C WHERE ORD.CNO = C.CNO AND ORD.SHIPPED IS NULL;
+
+ONO  CNAME
+---- --------------------
+O002 Rakesh Bhoslae
+O004 Suvendu Das
+
+e)
+SQL> SELECT C.CNAME, E.ENAME FROM CUSTOMERS_TS C, EMPLOYEES_TS E, ORDERS_TS ORD WHERE ORD.CNO = C.CNO AND ORD.ENO = E.ENO;
+
+CNAME                ENAME
+-------------------- --------------------
+Rakesh Bhoslae       Akash Pal
+Rakesh Bhoslae       Soumyadeep Adak
+Subham Das           Ram Das
+Suvendu Das          Akash Pal
+
+f)
+SQL> SELECT ENAME, HDATE FROM EMPLOYEES_TS WHERE (SYSDATE-HDATE) = (SELECT MAX(SYSDATE-HDATE) FROM EMPLOYEES_TS);
+
+ENAME                HDATE
+-------------------- ---------
+Akash Pal            30-DEC-22
+
+g)
+SQL> SELECT PNO, PNAME, PRICE FROM PARTS_TS WHERE PRICE > 20000 ORDER BY PNO;
+
+PNO  PNAME                     PRICE
+---- -------------------- ----------
+P002 Drill Machine             26000
+P005 Steering                  21000
+
+h)
+SQL> SELECT P.PNO, P.PNAME, SUM(OD.QTY*P.PRICE) "Total Sales" FROM PARTS_TS P, ODETAILS_TS OD WHERE P.PNO = OD.PNO GROUP BY P.PNO, P.PNAME;
+
+PNO  PNAME                Total Sales
+---- -------------------- -----------
+P001 Bolt                        3000
+P004 Tube                        7500
+P002 Drill Machine            3120000
+
+i)
+SQL> SELECT PNO, SUM(QTY) "Total QTY" FROM ODETAILS_TS GROUP BY PNO HAVING PNO = 'P002';
+
+PNO   Total QTY
+---- ----------
+P002        120
+
+j)
+SQL> SELECT E.ENO, Z.CITY FROM EMPLOYEES_TS E, ZIPCODES_TS Z WHERE E.ZIP = Z.ZIP AND Z.CITY = 'Mumbai';
+
+ENO  CITY
+---- --------------------
+E004 Mumbai
