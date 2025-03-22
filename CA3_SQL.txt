@@ -419,6 +419,14 @@ DEPT DEPTNAME
 ---- --------------------------------------------------
 D004 Audit
 
+Alternative:
+-----------
+SQL> SELECT D.DEPTID, D.DEPTNAME FROM DEPARTMENT D, PROJECT P WHERE D.DEPTID = P.DEPTID (+) AND P.DEPTID IS NULL;
+
+DEPT DEPTNAME
+---- --------------------------------------------------
+D004 Audit
+
 i)
 SQL> SELECT * FROM PROJECT WHERE ENDDATE IS NULL;
 
