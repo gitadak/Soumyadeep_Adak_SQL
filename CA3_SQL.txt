@@ -1,0 +1,438 @@
+5. Consider the following tables and write queriesto create the tables assuming the primary keys and the 
+foreign keys.                                                                                                           
+Student (StudID, StudName, BirthDate, StudAdd, CourseNo), Course (CourseID, CourseName, 
+Duration), Enrollment (CourseID, StartDate, StudID) 
+
+CREATE TABLE Student
+(
+    StudID VARCHAR2(4) PRIMARY KEY,
+    StudName VARCHAR2(50) NOT NULL,
+    BirthDate DATE NOT NULL,
+    StudAdd VARCHAR2(100),
+    CourseNo VARCHAR2(4),
+    CONSTRAINT fk_student_course FOREIGN KEY (CourseNo) REFERENCES Course(CourseID)
+);
+
+CREATE TABLE Course
+(
+    CourseID VARCHAR2(4) PRIMARY KEY,
+    CourseName VARCHAR2(50) NOT NULL,
+    Duration NUMBER(2) NOT NULL  -- Duration in months
+);
+
+CREATE TABLE Enrollment
+(
+    CourseID VARCHAR2(4),
+    StartDate DATE NOT NULL,
+    StudID VARCHAR2(4),
+    PRIMARY KEY (CourseID, StudID),
+    CONSTRAINT fk_enrollment_course FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+    CONSTRAINT fk_enrollment_student FOREIGN KEY (StudID) REFERENCES Student(StudID)
+);
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+10. HOTEL(hotelno, name, address) 
+ROOM(roomno, hotelno, type, price_pn) 
+BOOKING(hotelno, guestno, dateform, dateto, roomno) 
+GUEST(guestno, name, address) 
+where the underlined column names are primary keys.  
+a) List all the hotels which are situated in kolkata. 
+b) List all single rooms with a charge below Rs. 1000 per night. 
+c) List the names of all guests who are going to stay at ITC Hotel from 25th December. 
+d) List the price per night and type of all rooms at Grand Hotel. 
+e) List all guests currently staying at Taj Hotel. 
+
+CREATE TABLE HOTEL
+(
+    hotelno VARCHAR2(4) PRIMARY KEY,
+    name VARCHAR2(20),
+    address VARCHAR2(50)
+);
+
+CREATE TABLE ROOM
+(
+    roomno VARCHAR2(4),
+    hotelno VARCHAR2(4),
+    type VARCHAR2(10),
+    price_pn NUMBER(6,2),
+    PRIMARY KEY (roomno, hotelno),
+    FOREIGN KEY (hotelno) REFERENCES HOTEL(hotelno)
+);
+
+CREATE TABLE GUEST
+(
+    guestno VARCHAR2(4) PRIMARY KEY,
+    name VARCHAR2(20),
+    address VARCHAR2(50)
+);
+
+CREATE TABLE BOOKING
+(
+    hotelno VARCHAR2(4),
+    guestno VARCHAR2(4),
+    datefrom DATE,
+    dateto DATE,
+    roomno VARCHAR2(4),
+    PRIMARY KEY (hotelno, guestno, datefrom, roomno),
+    FOREIGN KEY (hotelno) REFERENCES HOTEL(hotelno),
+    FOREIGN KEY (guestno) REFERENCES GUEST(guestno),
+    FOREIGN KEY (roomno, hotelno) REFERENCES ROOM(roomno, hotelno)
+);
+
+INSERT INTO HOTEL VALUES ('H001', 'ITC Hotel', 'Kolkata');
+INSERT INTO HOTEL VALUES ('H002', 'Grand Hotel', 'Kolkata');
+INSERT INTO HOTEL VALUES ('H003', 'Taj Hotel', 'Mumbai');
+INSERT INTO HOTEL VALUES ('H004', 'Oberoi Hotel', 'Delhi');
+
+INSERT INTO ROOM VALUES ('R001', 'H001', 'Single', 800);
+INSERT INTO ROOM VALUES ('R002', 'H001', 'Double', 1500);
+INSERT INTO ROOM VALUES ('R003', 'H002', 'Single', 950);
+INSERT INTO ROOM VALUES ('R004', 'H002', 'Suite', 5000);
+INSERT INTO ROOM VALUES ('R005', 'H003', 'Single', 1200);
+INSERT INTO ROOM VALUES ('R006', 'H003', 'Double', 2000);
+INSERT INTO ROOM VALUES ('R007', 'H004', 'Single', 700);
+
+INSERT INTO GUEST VALUES ('G001', 'Soumyadeep Adak', 'Kolkata');
+INSERT INTO GUEST VALUES ('G002', 'Rahul Sharma', 'Delhi');
+INSERT INTO GUEST VALUES ('G003', 'Priya Das', 'Mumbai');
+INSERT INTO GUEST VALUES ('G004', 'Neha Agarwal', 'Chennai');
+INSERT INTO GUEST VALUES ('G005', 'Amit Roy', 'Kolkata');
+
+INSERT INTO BOOKING VALUES ('H001', 'G001', TO_DATE('25-DEC-2024', 'DD-MON-YYYY'), TO_DATE('30-DEC-2024', 'DD-MON-YYYY'), 'R001');
+INSERT INTO BOOKING VALUES ('H001', 'G002', TO_DATE('25-DEC-2024', 'DD-MON-YYYY'), TO_DATE('28-DEC-2024', 'DD-MON-YYYY'), 'R002');
+INSERT INTO BOOKING VALUES ('H002', 'G003', TO_DATE('26-DEC-2024', 'DD-MON-YYYY'), TO_DATE('30-DEC-2024', 'DD-MON-YYYY'), 'R003');
+INSERT INTO BOOKING VALUES ('H003', 'G004', TO_DATE('20-DEC-2024', 'DD-MON-YYYY'), TO_DATE('29-DEC-2024', 'DD-MON-YYYY'), 'R005');
+INSERT INTO BOOKING VALUES ('H003', 'G005', TO_DATE('21-DEC-2024', 'DD-MON-YYYY'), TO_DATE('31-DEC-2024', 'DD-MON-YYYY'), 'R006');
+
+SQL> SELECT * FROM HOTEL;
+
+HOTE NAME                 ADDRESS
+---- -------------------- --------------------------------------------------
+H001 ITC Hotel            Kolkata
+H002 Grand Hotel          Kolkata
+H003 Taj Hotel            Mumbai
+H004 Oberoi Hotel         Delhi
+
+SQL> SELECT * FROM ROOM;
+
+ROOM HOTE TYPE         PRICE_PN
+---- ---- ---------- ----------
+R001 H001 Single            800
+R002 H001 Double           1500
+R003 H002 Single            950
+R004 H002 Suite            5000
+R005 H003 Single           1200
+R006 H003 Double           2000
+R007 H004 Single            700
+
+7 rows selected.
+
+SQL> SELECT * FROM GUEST;
+
+GUES NAME                 ADDRESS
+---- -------------------- --------------------------------------------------
+G001 Soumyadeep Adak      Kolkata
+G002 Rahul Sharma         Delhi
+G003 Priya Das            Mumbai
+G004 Neha Agarwal         Chennai
+G005 Amit Roy             Kolkata
+
+SQL> SELECT * FROM BOOKING;
+
+HOTE GUES DATEFROM  DATETO    ROOM
+---- ---- --------- --------- ----
+H001 G001 25-DEC-24 30-DEC-24 R001
+H001 G002 25-DEC-24 28-DEC-24 R002
+H002 G003 26-DEC-24 30-DEC-24 R003
+H003 G004 20-DEC-24 29-DEC-24 R005
+H003 G005 21-DEC-24 31-DEC-24 R006
+
+a)
+SQL> SELECT HOTELNO, NAME FROM HOTEL WHERE UPPER(ADDRESS) = 'KOLKATA';
+
+HOTE NAME
+---- --------------------
+H001 ITC Hotel
+H002 Grand Hotel
+
+b)
+SQL> SELECT ROOMNO, HOTELNO, PRICE_PN FROM ROOM WHERE UPPER(TYPE) = 'SINGLE' AND PRICE_PN < 1000;
+
+ROOM HOTE   PRICE_PN
+---- ---- ----------
+R001 H001        800
+R003 H002        950
+R007 H004        700
+
+c)
+SQL> SELECT G.GUESTNO, G.NAME FROM GUEST G, BOOKING B, HOTEL H WHERE B.GUESTNO = G.GUESTNO AND B.HOTELNO = H.HOTELNO AND UPPER(H.NAME) = 'ITC HOTEL' AND B.DATEFROM = TO_DATE('25-DEC-2024','DD-MON-YYYY');
+
+GUES NAME
+---- --------------------
+G001 Soumyadeep Adak
+G002 Rahul Sharma
+
+d)
+SQL> SELECT R.TYPE, R.PRICE_PN FROM ROOM R, HOTEL H WHERE R.HOTELNO = H.HOTELNO AND UPPER(H.NAME) = 'GRAND HOTEL';
+
+TYPE         PRICE_PN
+---------- ----------
+Single            950
+Suite            5000
+
+e)
+SQL> SELECT G.GUESTNO, G.NAME FROM GUEST G, BOOKING B, HOTEL H WHERE G.GUESTNO = B.GUESTNO AND B.HOTELNO = H.HOTELNO AND UPPER(H.NAME) = 'TAJ HOTEL';
+
+GUES NAME
+---- --------------------
+G004 Neha Agarwal
+G005 Amit Roy
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+11. Consider the following tables and write the SQL queries that follow: Employee (EmpID, EmpName, BirthDate, Salary, DeptNo), Department (DeptID, DeptName, Location), Dependent (DepID, Name, BirthDate, EmpID), Project (ProjID, ProjName, StartDate, EndDate, DeptID, ProjManager)
+a) Find the details of employees who earn more than the average salary of his/her department. b) Select names and IDs of employees who have more than one dependent. c) Select names of pairs of all employees who are in the same department, along with the department number. d) Select department name wise average salary paid to an employee. e) Retrieve the department name and dependents born after 2005 along with the employee they are dependent on. f) Select the projects along with their department names. g) List the projects that have taken more than one year to complete. h) List the departments that have no projects. i) Select the projects that have not completed yet. j) List the employees who are working as manager in two projects.
+
+CREATE TABLE Department
+(
+    DeptID VARCHAR2(4) PRIMARY KEY, 
+    DeptName VARCHAR2(50),
+    Location VARCHAR2(50)
+);
+
+CREATE TABLE Employee
+(
+    EmpID VARCHAR2(4) PRIMARY KEY, 
+    EmpName VARCHAR2(50),
+    BirthDate DATE,
+    Salary NUMBER(10,2),
+    DeptNo VARCHAR2(4),
+    FOREIGN KEY (DeptNo) REFERENCES Department(DeptID)
+);
+
+CREATE TABLE Dependent
+(
+    DepID VARCHAR2(4) PRIMARY KEY, 
+    Name VARCHAR2(50),
+    BirthDate DATE,
+    EmpID VARCHAR2(4),
+    FOREIGN KEY (EmpID) REFERENCES Employee(EmpID)
+);
+
+CREATE TABLE Project
+(
+    ProjID VARCHAR2(4) PRIMARY KEY,
+    ProjName VARCHAR2(50),
+    StartDate DATE,
+    EndDate DATE,
+    DeptID VARCHAR2(4),
+    ProjManager VARCHAR2(4),
+    FOREIGN KEY (DeptID) REFERENCES Department(DeptID),
+    FOREIGN KEY (ProjManager) REFERENCES Employee(EmpID)
+);
+
+INSERT INTO Department VALUES ('D001', 'IT', 'Kolkata');
+INSERT INTO Department VALUES ('D002', 'Finance', 'Mumbai');
+INSERT INTO Department VALUES ('D003', 'HR', 'Delhi');
+INSERT INTO Department VALUES ('D004', 'Audit', 'Punjab');
+
+INSERT INTO Employee VALUES ('E001', 'Soumyadeep Adak', TO_DATE('1990-05-12', 'YYYY-MM-DD'), 60000, 'D001');
+INSERT INTO Employee VALUES ('E002', 'Rahul Sharma', TO_DATE('1985-07-19', 'YYYY-MM-DD'), 75000, 'D002');
+INSERT INTO Employee VALUES ('E003', 'Priya Das', TO_DATE('1992-11-23', 'YYYY-MM-DD'), 55000, 'D001');
+INSERT INTO Employee VALUES ('E004', 'Neha Agarwal', TO_DATE('1988-09-05', 'YYYY-MM-DD'), 80000, 'D003');
+INSERT INTO Employee VALUES ('E005', 'Amit Roy', TO_DATE('1995-06-30', 'YYYY-MM-DD'), 72000, 'D002');
+INSERT INTO Employee VALUES ('E006', 'Aniket Bose', TO_DATE('1991-02-17', 'YYYY-MM-DD'), 58000, 'D001');
+
+INSERT INTO Dependent VALUES ('D001', 'Riya Adak', TO_DATE('2010-03-15', 'YYYY-MM-DD'), 'E001');
+INSERT INTO Dependent VALUES ('D002', 'Aarav Sharma', TO_DATE('2008-09-20', 'YYYY-MM-DD'), 'E002');
+INSERT INTO Dependent VALUES ('D003', 'Ananya Sharma', TO_DATE('2012-12-05', 'YYYY-MM-DD'), 'E002');
+INSERT INTO Dependent VALUES ('D004', 'Ishaan Das', TO_DATE('2014-07-09', 'YYYY-MM-DD'), 'E003');
+INSERT INTO Dependent VALUES ('D005', 'Kabir Agarwal', TO_DATE('2018-01-25', 'YYYY-MM-DD'), 'E004');
+INSERT INTO Dependent VALUES ('D006', 'Neel Roy', TO_DATE('2011-06-10', 'YYYY-MM-DD'), 'E005');
+
+INSERT INTO Project VALUES ('P001', 'ERP System', TO_DATE('2022-03-15', 'YYYY-MM-DD'), TO_DATE('2023-06-20', 'YYYY-MM-DD'), 'D001', 'E001');
+INSERT INTO Project VALUES ('P002', 'Banking App', TO_DATE('2021-08-10', 'YYYY-MM-DD'), TO_DATE('2023-12-01', 'YYYY-MM-DD'), 'D002', 'E002');
+INSERT INTO Project VALUES ('P003', 'HR Portal', TO_DATE('2022-09-05', 'YYYY-MM-DD'), TO_DATE('2024-01-30', 'YYYY-MM-DD'), 'D003', 'E004');
+INSERT INTO Project VALUES ('P004', 'Cloud Migration', TO_DATE('2023-04-01', 'YYYY-MM-DD'), NULL, 'D001', 'E003');
+INSERT INTO Project VALUES ('P005', 'Finance Automation', TO_DATE('2023-07-20', 'YYYY-MM-DD'), NULL, 'D002', 'E005');
+INSERT INTO Project VALUES ('P006', 'IT Security Enhancement', TO_DATE('2020-05-01', 'YYYY-MM-DD'), TO_DATE('2021-10-10', 'YYYY-MM-DD'), 'D001', 'E001');
+INSERT INTO Project VALUES ('P007', 'AI Chatbot', TO_DATE('2023-01-12', 'YYYY-MM-DD'), NULL, 'D003', 'E004');
+INSERT INTO Project VALUES ('P008', 'Cybersecurity Initiative', TO_DATE('2021-02-15', 'YYYY-MM-DD'), TO_DATE('2022-06-15', 'YYYY-MM-DD'), 'D001', 'E001');
+INSERT INTO Project VALUES ('P009', 'Investment Tracker', TO_DATE('2022-10-01', 'YYYY-MM-DD'), NULL, 'D002', 'E002');
+
+SQL> SELECT * FROM DEPARTMENT;
+
+DEPT DEPTNAME                                           LOCATION
+---- -------------------------------------------------- --------------------------------------------------
+D001 IT                                                 Kolkata
+D002 Finance                                            Mumbai
+D003 HR                                                 Delhi
+D004 Audit                                              Punjab
+
+SQL> SELECT * FROM EMPLOYEE;
+
+EMPI EMPNAME                                            BIRTHDATE     SALARY DEPT
+---- -------------------------------------------------- --------- ---------- ----
+E001 Soumyadeep Adak                                    12-MAY-90      60000 D001
+E002 Rahul Sharma                                       19-JUL-85      75000 D002
+E003 Priya Das                                          23-NOV-92      55000 D001
+E004 Neha Agarwal                                       05-SEP-88      80000 D003
+E005 Amit Roy                                           30-JUN-95      72000 D002
+E006 Aniket Bose                                        17-FEB-91      58000 D001
+
+6 rows selected.
+
+SQL> SELECT * FROM DEPENDENT;
+
+DEPI NAME                                               BIRTHDATE EMPI
+---- -------------------------------------------------- --------- ----
+D001 Riya Adak                                          15-MAR-10 E001
+D002 Aarav Sharma                                       20-SEP-08 E002
+D003 Ananya Sharma                                      05-DEC-12 E002
+D004 Ishaan Das                                         09-JUL-14 E003
+D005 Kabir Agarwal                                      25-JAN-18 E004
+D006 Neel Roy                                           10-JUN-11 E005
+
+6 rows selected.
+
+SQL> SELECT * FROM PROJECT;
+
+PROJ PROJNAME                                           STARTDATE ENDDATE   DEPT PROJMANAGER
+---- -------------------------------------------------- --------- --------- ---- ------------------------------
+P001 ERP System                                         15-MAR-22 20-JUN-23 D001 E001
+P002 Banking App                                        10-AUG-21 01-DEC-23 D002 E002
+P003 HR Portal                                          05-SEP-22 30-JAN-24 D003 E004
+P004 Cloud Migration                                    01-APR-23           D001 E003
+P005 Finance Automation                                 20-JUL-23           D002 E005
+P006 IT Security Enhancement                            01-MAY-20 10-OCT-21 D001 E001
+P007 AI Chatbot                                         12-JAN-23           D003 E004
+P008 Cybersecurity Initiative                           15-FEB-21 15-JUN-22 D001 E001
+P009 Investment Tracker                                 01-OCT-22           D002 E002
+
+9 rows selected.
+
+a)
+SQL> SELECT * FROM EMPLOYEE OUTER WHERE OUTER.SALARY > (SELECT AVG(INNER.SALARY) FROM EMPLOYEE INNER WHERE OUTER.DEPTNO = INNER.DEPTNO);
+
+EMPI EMPNAME                                            BIRTHDATE     SALARY DEPT
+---- -------------------------------------------------- --------- ---------- ----
+E001 Soumyadeep Adak                                    12-MAY-90      60000 D001
+E002 Rahul Sharma                                       19-JUL-85      75000 D002
+E006 Aniket Bose                                        17-FEB-91      58000 D001
+
+Optimized:
+---------
+SELECT E1.* 
+FROM EMPLOYEE E1
+JOIN (SELECT DEPTNO, AVG(SALARY) AS AVG_SALARY FROM EMPLOYEE GROUP BY DEPTNO) E2
+ON E1.DEPTNO = E2.DEPTNO
+WHERE E1.SALARY > E2.AVG_SALARY;
+
+b)
+SQL> SELECT E.EMPID, E.EMPNAME, V.DEPCOUNT FROM EMPLOYEE E, (SELECT EMPID, COUNT(DEPID) DEPCOUNT FROM DEPENDENT GROUP BY EMPID) V WHERE E.EMPID = V.EMPID AND V.DEPCOUNT > 1;
+
+EMPI EMPNAME                                              DEPCOUNT
+---- -------------------------------------------------- ----------
+E002 Rahul Sharma                                                2
+
+Optimized:
+---------
+SELECT E.EMPID, E.EMPNAME, COUNT(D.DEPID) AS DEPCOUNT 
+FROM EMPLOYEE E 
+JOIN DEPENDENT D ON E.EMPID = D.EMPID 
+GROUP BY E.EMPID, E.EMPNAME 
+HAVING COUNT(D.DEPID) > 1;
+
+c)
+SQL> SELECT E1.EMPNAME EMPLOYEE1, E2.EMPNAME EMPLOYEE2, E1.DEPTNO FROM EMPLOYEE E1, EMPLOYEE E2 WHERE E1.DEPTNO = E2.DEPTNO AND E1.EMPID < E2.EMPID;
+
+EMPLOYEE1                                          EMPLOYEE2                                          DEPT
+-------------------------------------------------- -------------------------------------------------- ----
+Soumyadeep Adak                                    Priya Das                                          D001
+Rahul Sharma                                       Amit Roy                                           D002
+Soumyadeep Adak                                    Aniket Bose                                        D001
+Priya Das                                          Aniket Bose                                        D001
+
+d)
+SQL> SELECT E.DEPTNO, D.DEPTNAME, AVG(E.SALARY) FROM EMPLOYEE E, DEPARTMENT D WHERE E.DEPTNO = D.DEPTID GROUP BY E.DEPTNO, D.DEPTNAME;
+
+DEPT DEPTNAME                                           AVG(E.SALARY)
+---- -------------------------------------------------- -------------
+D001 IT                                                    57666.6667
+D002 Finance                                                    73500
+D003 HR                                                         80000
+
+Optimized: (Considers Departments with no Employees)
+---------
+SELECT D.DEPTID, D.DEPTNAME, AVG(E.SALARY) 
+FROM DEPARTMENT D 
+LEFT JOIN EMPLOYEE E ON D.DEPTID = E.DEPTNO 
+GROUP BY D.DEPTID, D.DEPTNAME;
+
+e)
+SQL> SELECT D.DEPTNAME DEPARTMENT, DEPN.NAME DEPENDENT, DEPN.BIRTHDATE BIRTHDATE, E.EMPNAME "DEPENDENT ON" FROM EMPLOYEE E, DEPARTMENT D, DEPENDENT DEPN WHERE DEPN.EMPID = E.EMPID AND E.DEPTNO = D.DEPTID AND DEPN.BIRTHDATE > '31-DEC-2005';
+
+DEPARTMENT                                         DEPENDENT                                          BIRTHDATE DEPENDENT ON
+-------------------------------------------------- -------------------------------------------------- --------- ------------------------------
+IT                                                 Riya Adak                                          15-MAR-10 Soumyadeep Adak
+Finance                                            Aarav Sharma                                       20-SEP-08 Rahul Sharma
+Finance                                            Ananya Sharma                                      05-DEC-12 Rahul Sharma
+IT                                                 Ishaan Das                                         09-JUL-14 Priya Das
+HR                                                 Kabir Agarwal                                      25-JAN-18 Neha Agarwal
+Finance                                            Neel Roy                                           10-JUN-11 Amit Roy
+
+6 rows selected.
+
+f)
+SQL> SELECT P.PROJNAME, D.DEPTNAME FROM PROJECT P, DEPARTMENT D WHERE P.DEPTID = D.DEPTID;
+
+PROJNAME                                           DEPTNAME
+-------------------------------------------------- --------------------------------------------------
+ERP System                                         IT
+Banking App                                        Finance
+HR Portal                                          HR
+Cloud Migration                                    IT
+Finance Automation                                 Finance
+IT Security Enhancement                            IT
+AI Chatbot                                         HR
+Cybersecurity Initiative                           IT
+Investment Tracker                                 Finance
+
+9 rows selected.
+
+g)
+SQL> SELECT * FROM PROJECT WHERE ENDDATE-STARTDATE > 365;
+
+PROJ PROJNAME                                           STARTDATE ENDDATE   DEPT PROJMANAGER
+---- -------------------------------------------------- --------- --------- ---- ------------------------------
+P001 ERP System                                         15-MAR-22 20-JUN-23 D001 E001
+P002 Banking App                                        10-AUG-21 01-DEC-23 D002 E002
+P003 HR Portal                                          05-SEP-22 30-JAN-24 D003 E004
+P006 IT Security Enhancement                            01-MAY-20 10-OCT-21 D001 E001
+P008 Cybersecurity Initiative                           15-FEB-21 15-JUN-22 D001 E001
+
+h)
+SQL> SELECT DEPTID, DEPTNAME FROM DEPARTMENT WHERE DEPTID NOT IN (SELECT DISTINCT DEPTID FROM PROJECT);
+
+DEPT DEPTNAME
+---- --------------------------------------------------
+D004 Audit
+
+i)
+SQL> SELECT * FROM PROJECT WHERE ENDDATE IS NULL;
+
+PROJ PROJNAME                                           STARTDATE ENDDATE   DEPT PROJMANAGER
+---- -------------------------------------------------- --------- --------- ---- ------------------------------
+P004 Cloud Migration                                    01-APR-23           D001 E003
+P005 Finance Automation                                 20-JUL-23           D002 E005
+P007 AI Chatbot                                         12-JAN-23           D003 E004
+P009 Investment Tracker                                 01-OCT-22           D002 E002
+
+j)
+SQL> SELECT E.EMPID, E.EMPNAME FROM EMPLOYEE E, PROJECT P WHERE P.PROJMANAGER = E.EMPID GROUP BY E.EMPID, E.EMPNAME HAVING COUNT(P.PROJID) = 2;
+
+EMPI EMPNAME
+---- --------------------------------------------------
+E002 Rahul Sharma
+E004 Neha Agarwal
