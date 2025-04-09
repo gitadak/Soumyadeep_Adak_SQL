@@ -1,0 +1,230 @@
+1)
+
+CREATE TABLE SALESPEOPLE_TS
+(
+	SNUM VARCHAR2(5) PRIMARY KEY,
+	SNAME VARCHAR2(20),
+	CITY VARCHAR2(10),
+	COMM NUMBER(10)
+);
+
+INSERT INTO SALESPEOPLE_TS VALUES('S001','Ravi','Mumbai',1200);
+INSERT INTO SALESPEOPLE_TS VALUES('S002','Anita','Delhi',1800);
+INSERT INTO SALESPEOPLE_TS VALUES('S003','John','Mumbai',1500);
+INSERT INTO SALESPEOPLE_TS VALUES('S004','Leena','Kolkata',2100);
+INSERT INTO SALESPEOPLE_TS VALUES('S005','Raj','Delhi',1100);
+
+SQL> SELECT * FROM SALESPEOPLE_TS;
+
+SNUM  SNAME                CITY             COMM
+----- -------------------- ---------- ----------
+S001  Ravi                 Mumbai           1200
+S002  Anita                Delhi            1800
+S003  John                 Mumbai           1500
+S004  Leena                Kolkata          2100
+S005  Raj                  Delhi            1100
+
+
+CREATE TABLE CUSTOMER_TS
+(
+	CNUM VARCHAR2(5) PRIMARY KEY,
+	CNAME VARCHAR2(20),
+	CITY VARCHAR2(10),
+	RATING NUMBER(2),
+	SNUM VARCHAR2(5),
+	FOREIGN KEY (SNUM) REFERENCES SALESPEOPLE_TS (SNUM)
+);
+
+INSERT INTO CUSTOMER_TS VALUES ('C001','Amit','Mumbai',30,'S001');
+INSERT INTO CUSTOMER_TS VALUES ('C002','Neha','Delhi',40,'S002');
+INSERT INTO CUSTOMER_TS VALUES ('C003','Sameer','Mumbai',40,'S003');
+INSERT INTO CUSTOMER_TS VALUES ('C004','Priya','Kolkata',25,'S004');
+INSERT INTO CUSTOMER_TS VALUES ('C005','Aditya','Delhi',40,'S002');
+INSERT INTO CUSTOMER_TS VALUES ('C006','Rohit','Delhi',20,'S005');
+
+SQL> SELECT * FROM CUSTOMER_TS;
+
+CNUM  CNAME                CITY           RATING SNUM
+----- -------------------- ---------- ---------- -----
+C001  Amit                 Mumbai             30 S001
+C002  Neha                 Delhi              40 S002
+C003  Sameer               Mumbai             40 S003
+C004  Priya                Kolkata            25 S004
+C005  Aditya               Delhi              40 S002
+C006  Rohit                Delhi              20 S005
+
+6 rows selected.
+
+
+CREATE TABLE ORDER_TS
+(
+	ONUM VARCHAR2(5) PRIMARY KEY,
+	AMT NUMBER(8,2),
+	ODATE DATE,
+	CNUM VARCHAR2(5),
+	SNUM VARCHAR2(5),
+	FOREIGN KEY (SNUM) REFERENCES SALESPEOPLE_TS (SNUM),
+	FOREIGN KEY (CNUM) REFERENCES CUSTOMER_TS (CNUM)
+);
+
+INSERT INTO ORDER_TS VALUES ('O001',15000,'01-APR-2024','C001','S001');
+INSERT INTO ORDER_TS VALUES ('O002',18000,'02-APR-2024','C002','S002');
+INSERT INTO ORDER_TS VALUES ('O003',12000,'03-APR-2024','C003','S003');
+INSERT INTO ORDER_TS VALUES ('O004',9000,'04-APR-2024','C002','S002');
+INSERT INTO ORDER_TS VALUES ('O005',20000,'05-APR-2024','C005','S002');
+INSERT INTO ORDER_TS VALUES ('O006',8000,'06-APR-2024','C004','S004');
+
+SQL> SELECT * FROM ORDER_TS;
+
+ONUM         AMT ODATE     CNUM  SNUM
+----- ---------- --------- ----- -----
+O001       15000 01-APR-24 C001  S001
+O002       18000 02-APR-24 C002  S002
+O003       12000 03-APR-24 C003  S003
+O004        9000 04-APR-24 C002  S002
+O005       20000 05-APR-24 C005  S002
+O006        8000 06-APR-24 C004  S004
+
+6 rows selected.
+
+
+2)
+
+a)
+CREATE VIEW VIEW_A_TS AS
+(
+	SELECT *
+	FROM CUSTOMER_TS
+	WHERE RATING = (SELECT MAX(RATING) FROM CUSTOMER_TS) 
+);
+
+SQL> SELECT * FROM VIEW_A_TS;
+
+CNUM  CNAME                CITY           RATING SNUM
+----- -------------------- ---------- ---------- -----
+C002  Neha                 Delhi              40 S002
+C003  Sameer               Mumbai             40 S003
+C005  Aditya               Delhi              40 S002
+
+b)
+CREATE VIEW VIEW_B_TS AS
+(
+	SELECT CITY, COUNT(SNUM) "NO. OF SALESPERSON"
+	FROM SALESPEOPLE_TS
+	GROUP BY CITY
+);
+
+SQL> SELECT * FROM VIEW_B_TS;
+
+CITY       NO. OF SALESPERSON
+---------- ------------------
+Delhi                       2
+Mumbai                      2
+Kolkata                     1
+
+c)
+CREATE VIEW VIEW_C_TS AS
+(
+	SELECT S.SNUM, S.SNAME, AVG(O.AMT) "AVERAGE ORDERS", SUM(O.AMT) "TOTAL ORDERS"
+	FROM SALESPEOPLE_TS S, ORDER_TS O
+	WHERE S.SNUM = O.SNUM
+	GROUP BY S.SNUM, S.SNAME
+);
+
+SQL> SELECT * FROM VIEW_C_TS;
+
+SNUM  SNAME                AVERAGE ORDERS TOTAL ORDERS
+----- -------------------- -------------- ------------
+S001  Ravi                          15000        15000
+S002  Anita                    15666.6667        47000
+S004  Leena                          8000         8000
+S003  John                          12000        12000
+
+d)
+CREATE VIEW VIEW_D_TS AS
+(
+	SELECT SNUM, COUNT(CNUM) "NO. OF CUSTOMERS"
+	FROM CUSTOMER_TS
+	GROUP BY SNUM
+);
+
+SQL> SELECT * FROM VIEW_D_TS;
+
+SNUM  NO. OF CUSTOMERS
+----- ----------------
+S001                 1
+S002                 2
+S003                 1
+S005                 1
+S004                 1
+
+3)
+CREATE VIEW SALESPEOPLE_CUSTOMER_ORDERS_TS AS
+(
+	SELECT S.SNAME SALESPEOPLE_NAME, C.CNAME CUSTOMER_NAME, O.ONUM ORDER_NUMBER
+	FROM SALESPEOPLE_TS S, CUSTOMER_TS C, ORDER_TS O
+	WHERE O.CNUM = C.CNUM
+	AND O.SNUM = S.SNUM
+);
+
+SQL> SELECT * FROM SALESPEOPLE_CUSTOMER_ORDERS_TS;
+
+SALESPEOPLE_NAME     CUSTOMER_NAME        ORDER
+-------------------- -------------------- -----
+Ravi                 Amit                 O001
+Anita                Neha                 O004
+Anita                Neha                 O002
+John                 Sameer               O003
+Leena                Priya                O006
+Anita                Aditya               O005
+
+6 rows selected.
+
+4)
+CREATE VIEW VIEW_4_TS AS
+SELECT SNUM, COMM
+FROM SALESPEOPLE_TS
+WHERE COMM BETWEEN 1000 AND 2000
+WITH CHECK OPTION;
+
+SQL> SELECT * FROM VIEW_4_TS;
+
+SNUM        COMM
+----- ----------
+S001        1200
+S002        1800
+S003        1500
+S005        1100
+
+SQL> INSERT INTO VIEW_4_TS VALUES ('S006',2500);
+INSERT INTO VIEW_4_TS VALUES ('S006',2500)
+            *
+ERROR at line 1:
+ORA-01402: view WITH CHECK OPTION where-clause violation
+
+SQL> INSERT INTO VIEW_4_TS VALUES ('S006',2000);
+
+1 row created.
+
+SQL> SELECT * FROM VIEW_4_TS;
+
+SNUM        COMM
+----- ----------
+S001        1200
+S002        1800
+S003        1500
+S005        1100
+S006        2000
+
+SQL> SELECT * FROM SALESPEOPLE_TS;
+
+SNUM  SNAME                CITY             COMM
+----- -------------------- ---------- ----------
+S001  Ravi                 Mumbai           1200
+S002  Anita                Delhi            1800
+S003  John                 Mumbai           1500
+S004  Leena                Kolkata          2100
+S005  Raj                  Delhi            1100
+S006                                        2000
+
+6 rows selected.
