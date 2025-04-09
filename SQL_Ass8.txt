@@ -146,17 +146,14 @@ CREATE VIEW VIEW_D_TS AS
 	SELECT SNUM, COUNT(CNUM) "NO. OF CUSTOMERS"
 	FROM CUSTOMER_TS
 	GROUP BY SNUM
+	HAVING COUNT(CNUM) > 1
 );
 
 SQL> SELECT * FROM VIEW_D_TS;
 
 SNUM  NO. OF CUSTOMERS
 ----- ----------------
-S001                 1
 S002                 2
-S003                 1
-S005                 1
-S004                 1
 
 3)
 CREATE VIEW SALESPEOPLE_CUSTOMER_ORDERS_TS AS
