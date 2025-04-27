@@ -64,6 +64,38 @@ COMMIT;
 
 ---------------------------------------------------------------------------------------------------------------------
 
+CREATE TABLE Employee1 (
+    EID INT PRIMARY KEY,
+    ENAME VARCHAR(50),
+    CITY VARCHAR(50),
+    DESIGNATION VARCHAR(50),
+    SALARY DECIMAL(10,2),
+    PERKS DECIMAL(10,2)
+);
+
+-- Insert at least 3 employees
+INSERT INTO Employee1 VALUES (1, 'Alice', 'New York', 'Manager', 12000, 600);
+INSERT INTO Employee1 VALUES (2, 'Bob', 'Chicago', 'Developer', 8000, 400);
+INSERT INTO Employee1 VALUES (3, 'Charlie', 'Los Angeles', 'Analyst', 7000, 700);
+
+COMMIT;
+
+---------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE EMP2 (
+    EMPID INT PRIMARY KEY,
+    ENAME VARCHAR(50),
+    SALARY DECIMAL(10,2)
+);
+
+CREATE TABLE EMP_BACKUP (
+    EMPID INT,
+    ENAME VARCHAR(50),
+    SALARY DECIMAL(10,2)
+);
+
+---------------------------------------------------------------------------------------------------------------------
+
 SQL> SELECT * FROM EMP;
 
      EMPNO ENAME      JOB              MGR HIREDATE         SAL       COMM     DEPTNO
